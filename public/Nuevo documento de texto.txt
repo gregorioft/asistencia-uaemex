@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Asistencias</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+width:90%;
+background:white;
+}
+
+th, td{
+padding:10px;
+border:1px solid #ccc;
+}
+
+th{
+background:#006341;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Lista de Asistencias</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>Cuenta</th>
+<th>Entrada</th>
+<th>Salida</th>
+<th>Fecha</th>
+</tr>
+</thead>
+
+<tbody id="tabla"></tbody>
+
+</table>
+
+<script>
+
+async function cargar(){
+
+const res = await fetch("/api/admin/asistencias");
+const data = await res.json();
+
+const tabla = document.getElementById("tabla");
+
+tabla.innerHTML="";
+
+data.forEach(a => {
+
+tabla.innerHTML += `
+<tr>
+<td>${a.numeroCuenta}</td>
+<td>${a.horaEntrada || "-"}</td>
+<td>${a.horaSalida || "-"}</td>
+<td>${new Date(a.fecha).toLocaleDateString()}</td>
+</tr>
+`;
+
+});
+
+}
+
+cargar();
+
+</script>
+
+</body>
+
+</html> 

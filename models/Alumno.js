@@ -14,19 +14,10 @@ const alumnoSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  token: {
-    type: String,
-    unique: true
-  },
-  qr: {
-    type: String
-  },
   fechaRegistro: {
     type: Date,
     default: Date.now
   }
 });
 
-const Alumno = mongoose.model("Alumno", alumnoSchema);
-
-export default Alumno;
+export default mongoose.model("Alumno", alumnoSchema);

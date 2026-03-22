@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Asistencia UAEMex</title>
+<style>
+:root {
+    --verde-uaemex: #1d6f42;
+    --verde-claro: #4caf70;
+    --gris-claro: #f0f0f0;
+    --blanco: #fff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--gris-claro);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--blanco);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+    color: var(--verde-uaemex);
+    text-align: center;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 100px;
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 5px 0;
+    width: 95%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: var(--verde-uaemex);
+    color: var(--blanco);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: var(--verde-claro);
+}
+
+#resultado, #asistencias, #qr {
+    margin-top: 20px;
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.calendar {
+    margin-top: 20px;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+    <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/4/46/UAEMex_logo.png" alt="UAEMex Logo">
+    <h1>Sistema de Asistencia UAEMex</h1>
+
+    <h2>Registro de Alumno</h2>
+    <form id="formRegistro">
+        <input type="text" id="numeroCuenta" placeholder="Número de cuenta" required><br>
+        <input type="text" id="nombreCompleto" placeholder="Nombre completo" required><br>
+        <input type="text" id="password" placeholder="Contraseña" required><br>
+        <button type="submit">Registrar Alumno</button>
+    </form>
+    <pre id="resultado"></pre>
+    <div id="qr"></div>
+
+    <h2>Registrar Asistencia</h2>
+    <form id="formAsistencia">
+        <input type="text" id="tokenAlumno" placeholder="Token del alumno" required><br>
+        <button type="submit">Registrar Asistencia</button>
+    </form>
+    <pre id="asistencias"></pre>
+
+    <h2>Calendario de Asistencias</h2>
+    <input type="date" id="fechaAsistencias">
+    <button id="btnVerAsistencias">Ver Asistencias</button>
+    <button id="btnDescargarExcel">Descargar Excel</button>
+    <div class="calendar" id="calendarList"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const formRegistro = document.getElementById("formRegistro");
+const formAsistencia = document.getElementById("formAsistencia");
+const resultado = document.getElementById("resultado");
+const qrDiv = document.getElementById("qr");
+const asistenciasDiv = document.getElementById("asistencias");
+const calendarList = document.getElementById("calendarList");
+
+formRegistro.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const numeroCuenta = document.getElementById("numeroCuenta").value;
+    const nombreCompleto = document.getElementById("nombreCompleto").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const res = await fetch("http://localhost:3000/api/alumnos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ numeroCuenta, nombreCompleto, password })
+        });
+        const data = await res.json();
+        resultado.textContent = JSON.stringify(data, null, 2);
+
+        qrDiv.innerHTML = "";
+        if(data.alumno && data.alumno.token){
+            const qr = new QRious({ element: document.createElement('canvas'), value: data.alumno.token, size: 200 });
+            qrDiv.appendChild(qr.element);
+        }
+    } catch (error) {
+        resultado.textContent = "Error: " + error.message;
+    }
+});
+
+formAsistencia.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const tokenAlumno = document.getElementById("tokenAlumno").value;
+
+    try {
+        const res = await fetch("http://localhost:3000/api/asistencias", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: tokenAlumno })
+        });
+        const data = await res.json();
+        asistenciasDiv.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+        asistenciasDiv.textContent = "Error: " + error.message;
+    }
+});
+
+document.getElementById("btnVerAsistencias").addEventListener("click", async () => {
+    const fecha = document.getElementById("fechaAsistencias").value;
+    if(!fecha) return alert("Selecciona una fecha");
+    try {
+        const res = await fetch(`http://localhost:3000/api/asistencias/${fecha}`);
+        const data = await res.json();
+        calendarList.textContent = JSON.stringify(data, null, 2);
+    } catch(error){
+        calendarList.textContent = "Error: " + error.message;
+    }
+});
+
+document.getElementById("btnDescargarExcel").addEventListener("click", async () => {
+    const fecha = document.getElementById("fechaAsistencias").value;
+    if(!fecha) return alert("Selecciona una fecha");
+    try {
+        const res = await fetch(`http://localhost:3000/api/asistencias/${fecha}`);
+        const data = await res.json();
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Asistencias");
+        XLSX.writeFile(wb, `asistencias-${fecha}.xlsx`);
+    } catch(error){
+        alert("Error al descargar Excel: " + error.message);
+    }
+});
+</script>
+</body>
+</html>

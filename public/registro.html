@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Registro de Alumno</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f4f4f4;
+margin-top:50px;
+}
+
+.container{
+background:white;
+padding:40px;
+width:300px;
+margin:auto;
+border-radius:10px;
+}
+
+input{
+width:90%;
+padding:10px;
+margin:10px;
+}
+
+button{
+padding:10px 20px;
+background:#006341;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#004d2e;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Registro de Alumno</h2>
+
+<input id="nombre" placeholder="Nombre completo">
+<input id="cuenta" placeholder="Número de cuenta">
+<input id="password" type="password" placeholder="Contraseña">
+
+<button onclick="registrar()">Registrarse</button>
+
+<p id="mensaje"></p>
+
+</div>
+
+<script>
+
+async function registrar(){
+
+const nombre = document.getElementById("nombre").value;
+const cuenta = document.getElementById("cuenta").value;
+const password = document.getElementById("password").value;
+
+// 🔒 validaciones
+if(!nombre || !cuenta || !password){
+document.getElementById("mensaje").innerText="Llena todos los campos";
+return;
+}
+
+try {
+
+const res = await fetch("/api/alumnos",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+nombreCompleto: nombre,
+numeroCuenta: cuenta,
+password: password
+})
+});
+
+const data = await res.json();
+
+document.getElementById("mensaje").innerText = data.message;
+
+} catch (error) {
+
+console.error(error);
+document.getElementById("mensaje").innerText="Error al registrar";
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

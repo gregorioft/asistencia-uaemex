@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<title>Panel de Asistencias</title>
+
+<style>
+
+body{
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: #eef2f3;
+margin:0;
+}
+
+/* HEADER */
+.header{
+background:#006341;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.header h1{
+margin:0;
+font-size:22px;
+}
+
+.logout{
+background:white;
+color:#006341;
+border:none;
+padding:8px 15px;
+border-radius:5px;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* CONTENEDOR */
+.container{
+padding:20px;
+}
+
+/* CARDS */
+.cards{
+display:flex;
+gap:20px;
+margin-bottom:20px;
+}
+
+.card{
+flex:1;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.card h2{
+margin:0;
+color:#006341;
+}
+
+/* FILTROS */
+.filtros{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+display:flex;
+gap:10px;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input[type="date"]{
+padding:8px;
+}
+
+button{
+background:#006341;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#004d2e;
+}
+
+/* TABLA */
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+th{
+background:#006341;
+color:white;
+padding:12px;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
+
+tr:hover{
+background:#f5f5f5;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+<h1>Sistema de Control de Asistencia</h1>
+<button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="container">
+
+<!-- CARDS -->
+<div class="cards">
+<div class="card">
+<h2 id="total">0</h2>
+<p>Total registros</p>
+</div>
+</div>
+
+<!-- FILTROS -->
+<div class="filtros">
+
+<input type="date" id="fecha">
+
+<button onclick="filtrar()">Filtrar</button>
+
+<button onclick="cargar()">Ver todo</button>
+
+<button onclick="exportar()">Descargar Excel</button>
+
+</div>
+
+<!-- TABLA -->
+<table>
+
+<thead>
+<tr>
+<th>Cuenta</th>
+<th>Entrada</th>
+<th>Salida</th>
+<th>Fecha</th>
+</tr>
+</thead>
+
+<tbody id="tabla"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+async function cargar(){
+
+const res = await fetch("/api/admin/asistencias");
+const data = await res.json();
+
+render(data);
+
+}
+
+async function filtrar(){
+
+const fecha = document.getElementById("fecha").value;
+
+const res = await fetch(`/api/admin/asistencias?fecha=${fecha}`);
+const data = await res.json();
+
+render(data);
+
+}
+
+function render(data){
+
+const tabla = document.getElementById("tabla");
+tabla.innerHTML="";
+
+document.getElementById("total").innerText = data.length;
+
+data.forEach(a => {
+
+tabla.innerHTML += `
+<tr>
+<td>${a.numeroCuenta}</td>
+<td>${a.horaEntrada || "-"}</td>
+<td>${a.horaSalida || "-"}</td>
+<td>${new Date(a.fecha).toLocaleDateString()}</td>
+</tr>
+`;
+
+});
+
+}
+
+function exportar(){
+
+const link = document.createElement("a");
+link.href = "/api/admin/exportar";
+link.download = "asistencias.xlsx";
+link.click();
+
+}
+
+function logout(){
+window.location.href = "login.html";
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>

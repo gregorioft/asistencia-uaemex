@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<title>Control de Asistencia</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI', sans-serif;
+background: linear-gradient(135deg, #006341, #00a86b);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+}
+
+/* CONTENEDOR */
+.container{
+background:white;
+color:black;
+padding:40px;
+border-radius:15px;
+text-align:center;
+width:350px;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* LOGO */
+.logo{
+width:100px;
+margin-bottom:10px;
+}
+
+/* TITULO */
+h1{
+color:#006341;
+margin-bottom:10px;
+}
+
+/* QR */
+#qrcode{
+margin:20px;
+}
+
+/* BOTONES */
+button{
+padding:10px 20px;
+margin:10px;
+border:none;
+border-radius:5px;
+background:#006341;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#004d2e;
+}
+
+/* RELOJ */
+#reloj{
+font-size:18px;
+margin-top:10px;
+color:#333;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Logo_de_la_UAEMex.svg">
+
+<h1>Control de Asistencia</h1>
+
+<p>Escanea el código para registrar tu asistencia</p>
+
+<div id="qrcode"></div>
+
+<button onclick="generarQR()">Actualizar QR</button>
+
+<br>
+
+
+
+<div id="reloj"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+
+// 🕒 RELOJ EN TIEMPO REAL
+function actualizarReloj(){
+const ahora = new Date();
+document.getElementById("reloj").innerText =
+ahora.toLocaleTimeString();
+}
+
+setInterval(actualizarReloj, 1000);
+actualizarReloj();
+
+
+// 🔐 GENERAR QR
+function generarQR(){
+
+fetch("/api/token")
+.then(res=>res.json())
+.then(data=>{
+
+const url = "http://192.168.101.28:3000/asistencia.html?token="+data.token;
+
+document.getElementById("qrcode").innerHTML="";
+
+QRCode.toCanvas(document.createElement('canvas'), url, function (err, canvas) {
+
+document.getElementById("qrcode").appendChild(canvas);
+
+});
+
+});
+
+}
+
+generarQR();
+
+</script>
+
+</body>
+</html>

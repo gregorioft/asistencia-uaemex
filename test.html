@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Probar API UAEMex</title>
+</head>
+<body>
+  <h1>Prueba registro de alumno</h1>
+  <form id="form">
+    <input type="text" id="numeroCuenta" placeholder="Número de cuenta" required><br>
+    <input type="text" id="nombreCompleto" placeholder="Nombre completo" required><br>
+    <input type="text" id="password" placeholder="Contraseña" required><br>
+    <button type="submit">Registrar</button>
+  </form>
+
+  <pre id="resultado"></pre>
+
+  <script>
+    const form = document.getElementById("form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const numeroCuenta = document.getElementById("numeroCuenta").value;
+      const nombreCompleto = document.getElementById("nombreCompleto").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("http://localhost:3000/api/alumnos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numeroCuenta, nombreCompleto, password })
+      });
+
+      const data = await res.json();
+      document.getElementById("resultado").textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login</title>
+
+<style>
+body{
+font-family:Arial;
+text-align:center;
+margin-top:100px;
+background:#f4f4f4;
+}
+
+.container{
+background:white;
+padding:40px;
+width:300px;
+margin:auto;
+border-radius:10px;
+}
+
+input{
+width:90%;
+padding:10px;
+margin:10px;
+}
+
+button{
+padding:10px 20px;
+background:#006341;
+color:white;
+border:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Administrador</h2>
+
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+
+<button onclick="login()">Entrar</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+async function login(){
+
+const user = document.getElementById("user").value;
+const pass = document.getElementById("pass").value;
+
+const res = await fetch("/api/admin/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({user,pass})
+});
+
+const data = await res.json();
+
+if(data.ok){
+window.location="dashboard.html";
+}else{
+document.getElementById("msg").innerText="Credenciales incorrectas";
+}
+
+}
+
+</script>
+
+</body>
+</html>

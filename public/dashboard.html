@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+}
+
+.container{
+padding:40px;
+}
+
+button{
+display:block;
+margin:15px auto;
+padding:15px;
+width:250px;
+background:#006341;
+color:white;
+border:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Sistema de Control de Asistencia</h1>
+
+<button onclick="verAsistencias()">Ver Asistencias</button>
+<button onclick="exportar()">Exportar Excel</button>
+<button onclick="logout()">Cerrar sesión</button>
+
+</div>
+
+<script>
+
+function verAsistencias(){
+window.location="asistencias.html";
+}
+
+function verAlumnos(){
+window.location="alumnos.html";
+}
+
+function exportar(){
+window.location="/api/admin/exportar";
+}
+
+function logout(){
+window.location="admin.html";
+}
+
+</script>
+
+</body>
+</html>
