@@ -115,8 +115,7 @@ function generarQR(){
 fetch("/api/token")
 .then(res=>res.json())
 .then(data=>{
-
-const url = "http://192.168.101.28:3000/asistencia.html?token="+data.token;
+const url = "https://asistencia-uaemex.onrender.com/asistencia.html?token="+data.token;
 
 document.getElementById("qrcode").innerHTML="";
 
