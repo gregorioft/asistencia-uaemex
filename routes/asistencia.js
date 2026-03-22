@@ -21,18 +21,31 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Token expirado" });
     }
 
-    // 📅 fecha de hoy
-    const hoy = new Date();
-    const inicioDia = new Date(hoy.setHours(0,0,0,0));
-    const finDia = new Date(hoy.setHours(23,59,59,999));
+    // 🕐 HORA MÉXICO
+    const ahora = new Date();
 
-    // 🔎 buscar si ya existe asistencia hoy
+    const horaActual = ahora.toLocaleTimeString("es-MX", {
+      timeZone: "America/Mexico_City",
+      hour12: true
+    });
+
+    // 📅 FECHA MÉXICO
+    const fechaMX = new Date(ahora.toLocaleString("en-US", {
+      timeZone: "America/Mexico_City"
+    }));
+
+    // 📅 rango del día (México)
+    const inicioDia = new Date(fechaMX);
+    inicioDia.setHours(0, 0, 0, 0);
+
+    const finDia = new Date(fechaMX);
+    finDia.setHours(23, 59, 59, 999);
+
+    // 🔎 buscar asistencia del día
     let asistencia = await Asistencia.findOne({
       numeroCuenta,
       fecha: { $gte: inicioDia, $lte: finDia }
     });
-
-    const horaActual = new Date().toLocaleTimeString();
 
     // 🟢 ENTRADA
     if (!asistencia) {
@@ -41,7 +54,7 @@ router.post("/", async (req, res) => {
         numeroCuenta,
         horaEntrada: horaActual,
         token,
-        fecha: new Date()
+        fecha: fechaMX
       });
 
       await asistencia.save();
@@ -71,4 +84,5 @@ router.post("/", async (req, res) => {
   }
 
 });
+
 export default router;
