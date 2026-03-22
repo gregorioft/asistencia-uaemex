@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
 
     const horaActual = new Date().toLocaleTimeString();
 
-    // 🟢 SI NO EXISTE → ES ENTRADA
+    // 🟢 ENTRADA
     if (!asistencia) {
 
       asistencia = new Asistencia({
@@ -50,27 +50,25 @@ router.post("/", async (req, res) => {
 
     }
 
-    // 🔴 SI YA EXISTE Y NO TIENE SALIDA → ES SALIDA
+    // 🔴 SALIDA
     if (asistencia && !asistencia.horaSalida) {
 
       asistencia.horaSalida = horaActual;
       await asistencia.save();
-      console.log("Guardando asistencia...");
 
       return res.json({ message: "Salida registrada" });
 
     }
 
-    // ❌ SI YA TIENE TODO → BLOQUEAR
+    // ❌ YA COMPLETO
     return res.json({ message: "Ya registraste asistencia completa hoy" });
 
   } catch (error) {
 
+    console.log(error);
     res.status(500).json({ message: "Error en el servidor" });
 
   }
 
 });
-
-const { numeroCuenta, token, lat, lng } = req.body;
 export default router;
