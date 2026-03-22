@@ -40,6 +40,7 @@ border:none;
 <div class="container">
 
 <h2>Administrador</h2>
+<button onclick="logout()">Cerrar sesión</button>
 
 <input id="user" placeholder="Usuario">
 <input id="pass" type="password" placeholder="Contraseña">
@@ -49,30 +50,47 @@ border:none;
 <p id="msg"></p>
 
 </div>
-
 <script>
-
-async function login(){
+function logout(){
+localStorage.removeItem("admin");
+window.location.href = "admin.html";
+}
+</script>
+<script>
+// 🔐 verificar sesión
+if(localStorage.getItem("admin") !== "true"){
+alert("Acceso denegado");
+window.location.href = "admin.html";
+}
+</script>
+<script>
+function login(){
 
 const user = document.getElementById("user").value;
 const pass = document.getElementById("pass").value;
 
-const res = await fetch("/api/admin/login",{
+fetch("/api/admin/login",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json"
+},
 body:JSON.stringify({user,pass})
-});
-
-const data = await res.json();
-
+})
+.then(res=>res.json())
+.then(data=>{
 if(data.ok){
-window.location="dashboard.html";
+
+// 🔐 guardar sesión
+localStorage.setItem("admin","true");
+
+// ir al dashboard
+window.location.href="asistencias.html";
+
 }else{
-document.getElementById("msg").innerText="Credenciales incorrectas";
+document.getElementById("msg").innerText="Datos incorrectos";
 }
-
+});
 }
-
 </script>
 
 </body>

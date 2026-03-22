@@ -4,9 +4,33 @@ import Token from "../models/Token.js";
 
 const router = express.Router();
 
+// 📍 coordenadas escuela
+const LAT_ESCUELA = 19.2645;
+const LNG_ESCUELA = -98.8867;
+
+// 📏 calcular distancia
+function calcularDistancia(lat1, lon1, lat2, lon2){
+
+const R = 6371e3;
+
+const φ1 = lat1 * Math.PI/180;
+const φ2 = lat2 * Math.PI/180;
+const Δφ = (lat2-lat1) * Math.PI/180;
+const Δλ = (lon2-lon1) * Math.PI/180;
+
+const a =
+Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+Math.cos(φ1) * Math.cos(φ2) *
+Math.sin(Δλ/2) * Math.sin(Δλ/2);
+
+const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+return R * c;
+}
+
 router.post("/", async (req, res) => {
 
-  const { numeroCuenta, token } = req.body;
+  const { numeroCuenta, token, lat, lng } = req.body;
 
   try {
 
@@ -21,7 +45,18 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Token expirado" });
     }
 
-    // 🕐 HORA MÉXICO
+    // 📍 VALIDAR UBICACIÓN
+    if(!lat || !lng){
+      return res.status(400).json({ message: "Activa la ubicación" });
+    }
+
+    const distancia = calcularDistancia(lat, lng, LAT_ESCUELA, LNG_ESCUELA);
+
+    if(distancia > 100){
+      return res.status(400).json({ message: "Fuera de la escuela" });
+    }
+
+    // 🕐 hora México
     const ahora = new Date();
 
     const horaActual = ahora.toLocaleTimeString("es-MX", {
@@ -29,19 +64,19 @@ router.post("/", async (req, res) => {
       hour12: true
     });
 
-    // 📅 FECHA MÉXICO
+    // 📅 fecha México
     const fechaMX = new Date(ahora.toLocaleString("en-US", {
       timeZone: "America/Mexico_City"
     }));
 
-    // 📅 rango del día (México)
+    // 📅 rango del día
     const inicioDia = new Date(fechaMX);
-    inicioDia.setHours(0, 0, 0, 0);
+    inicioDia.setHours(0,0,0,0);
 
     const finDia = new Date(fechaMX);
-    finDia.setHours(23, 59, 59, 999);
+    finDia.setHours(23,59,59,999);
 
-    // 🔎 buscar asistencia del día
+    // 🔎 buscar asistencia
     let asistencia = await Asistencia.findOne({
       numeroCuenta,
       fecha: { $gte: inicioDia, $lte: finDia }
@@ -73,7 +108,6 @@ router.post("/", async (req, res) => {
 
     }
 
-    // ❌ YA COMPLETO
     return res.json({ message: "Ya registraste asistencia completa hoy" });
 
   } catch (error) {
