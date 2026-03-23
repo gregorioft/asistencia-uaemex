@@ -5,8 +5,8 @@ import Token from "../models/Token.js";
 const router = express.Router();
 
 // 📍 coordenadas escuela
-const LAT_ESCUELA = 19.2645;
-const LNG_ESCUELA = -98.8867;
+const LAT_ESCUELA = 19.29851;
+const LNG_ESCUELA = -98.95554;
 
 // 📏 calcular distancia
 function calcularDistancia(lat1, lon1, lat2, lon2){
