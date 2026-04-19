@@ -49,9 +49,30 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Token inválido" });
     }
 
-    if (new Date() > tokenDB.expiracion) {
-      return res.status(400).json({ message: "Token expirado" });
-    }
+   if (new Date() > tokenDB.expiracion) {
+
+  const ahora = new Date();
+
+  const fechaMX = new Date(ahora.toLocaleString("en-US", {
+    timeZone: "America/Mexico_City"
+  }));
+
+  const inicioDia = new Date(fechaMX);
+  inicioDia.setHours(0, 0, 0, 0);
+
+  const finDia = new Date(fechaMX);
+  finDia.setHours(23, 59, 59, 999);
+
+  const asistenciaExistente = await Asistencia.findOne({
+    numeroCuenta,
+    fecha: { $gte: inicioDia, $lte: finDia },
+    horaSalida: { $in: [null, ""] }
+  });
+
+  if (!asistenciaExistente) {
+    return res.status(400).json({ message: "Token expirado, pide un QR nuevo" });
+  }
+}
 
     if (!lat || !lng) {
       return res.status(400).json({ message: "Activa la ubicación" });
@@ -106,7 +127,7 @@ router.post("/", async (req, res) => {
 
     }
 
-    if (asistencia && !asistencia.horaSalida) {
+    if (asistencia && (!asistencia.horaSalida || asistencia.horaSalida === "")) {
 
       asistencia.horaSalida = horaActual;
       await asistencia.save();
