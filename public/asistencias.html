@@ -159,6 +159,7 @@ background:#f5f5f5;
 <thead>
 <tr>
 <th>Cuenta</th>
+<th>Nombre</th>
 <th>Entrada</th>
 <th>Salida</th>
 <th>Fecha</th>
@@ -205,6 +206,7 @@ data.forEach(a => {
 tabla.innerHTML += `
 <tr>
 <td>${a.numeroCuenta}</td>
+<td>${a.nombre || a.nombreCompleto || "-"}</td>
 <td>${a.horaEntrada || "-"}</td>
 <td>${a.horaSalida || "-"}</td>
 <td>${new Date(a.fecha).toLocaleDateString()}</td>

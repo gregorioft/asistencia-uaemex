@@ -1,34 +1,40 @@
 import express from "express";
 import Alumno from "../models/Alumno.js";
-import crypto from "crypto";
 
 const router = express.Router();
 
-router.post("/alumnos", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
 
     const { numeroCuenta, nombreCompleto, password } = req.body;
 
-    const token = crypto.randomBytes(16).toString("hex");
+    const existe = await Alumno.findOne({ numeroCuenta });
+
+    if (existe) {
+      return res.status(400).json({
+        message: "Ese número de cuenta ya está registrado"
+      });
+    }
 
     const nuevoAlumno = new Alumno({
       numeroCuenta,
       nombreCompleto,
-      password,
-      token
+      password
     });
 
     await nuevoAlumno.save();
 
     res.json({
-      mensaje: "Alumno registrado",
+      message: "Alumno registrado correctamente",
       alumno: nuevoAlumno
     });
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
-      error: "Error al registrar alumno"
+      message: "Error al registrar alumno"
     });
 
   }
