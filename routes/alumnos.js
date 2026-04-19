@@ -8,6 +8,14 @@ router.post("/", async (req, res) => {
 
     const { numeroCuenta, nombreCompleto, password } = req.body;
 
+    // validar campos vacíos
+    if (!numeroCuenta || !nombreCompleto || !password) {
+      return res.status(400).json({
+        message: "Todos los campos son obligatorios"
+      });
+    }
+
+    // verificar si ya existe
     const existe = await Alumno.findOne({ numeroCuenta });
 
     if (existe) {
@@ -16,25 +24,27 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // crear alumno
     const nuevoAlumno = new Alumno({
-      numeroCuenta,
-      nombreCompleto,
-      password
+      numeroCuenta: numeroCuenta.trim(),
+      nombreCompleto: nombreCompleto.trim(),
+      password: password.trim()
     });
 
     await nuevoAlumno.save();
 
-    res.json({
-      message: "Alumno registrado correctamente",
-      alumno: nuevoAlumno
+    return res.status(201).json({
+      message: "Alumno registrado correctamente"
     });
 
   } catch (error) {
 
+    console.log("ERROR REGISTRO ALUMNO:");
     console.log(error);
 
-    res.status(500).json({
-      message: "Error al registrar alumno"
+    return res.status(500).json({
+      message: "Error al registrar alumno",
+      error: error.message
     });
 
   }
