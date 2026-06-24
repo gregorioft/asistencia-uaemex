@@ -86,7 +86,7 @@ router.post("/", async (req, res) => {
       LNG_ESCUELA
     );
 
-    if (distancia > 100) {
+    if (distancia > 250) {
       return res.status(400).json({ message: "Fuera de la escuela" });
     }
 
