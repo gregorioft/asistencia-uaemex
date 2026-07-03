@@ -6,8 +6,8 @@ import Alumno from "../models/Alumno.js";
 const router = express.Router();
 
 // coordenadas escuela
-const LAT_ESCUELA = 19.298545773405586;
-const LNG_ESCUELA = -98.95537753919278;
+const LAT_ESCUELA = 19.298463;
+const LNG_ESCUELA = -98.955227;
 
 
 // calcular distancia
